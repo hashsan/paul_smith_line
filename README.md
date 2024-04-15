@@ -1,5 +1,5 @@
 # paul_smith_line
 
-[color-thief.html](color-thief.html)
+https://hashsan.github.io/paul_smith_line/color-thief.html
 
-[toImg.html](toImg.html)
+https://hashsan.github.io/paul_smith_line/toImg.html
