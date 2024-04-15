@@ -4,8 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Color Thief Demo</title>
-    <script src="./toImg.js"></script> <!-- toImg.jsのパス -->
-    <script src="./color-thief.js"></script> <!-- color-thief.jsのパス -->
+    <script src="toImg.js"></script> <!-- toImg.jsを読み込む -->
+    <script src="color-thief.js"></script> <!-- color-thief.jsを読み込む -->
+    <style>
+        /* 指定されたCSSスタイル */
+        body {
+            display: flex;
+            flex-direction: column;
+            width: 640px;
+            margin: auto;
+            gap: 1rem;
+        }
+    </style>
 </head>
 
 <body>
@@ -18,11 +28,10 @@
 
     <button id="extract-btn">抽出</button>
 
-    <!-- 元画像表示エリア -->
+    <!-- 結果表示エリア -->
     <h2>元画像</h2>
     <img id="original-img" alt="元画像" style="max-width: 300px; max-height: 300px;">
 
-    <!-- 代表色表示エリア -->
     <h2>代表色9つ</h2>
     <div id="colors-display"></div>
 
@@ -34,6 +43,28 @@
         const extractBtn = document.getElementById('extract-btn');
         const originalImgElement = document.getElementById('original-img');
         const colorsDisplayElement = document.getElementById('colors-display');
+
+        // makePalette関数: 画像オブジェクトと抽出したい色の数を入力し、代表色の配列を返す
+        function makePalette(img, numColors) {
+            const colorThief = new ColorThief();
+            return colorThief.getPalette(img, numColors);
+        }
+
+        // showDisp関数: 元画像と代表色の配列を表示
+        function showDisp(img, palette) {
+            // 元画像を表示
+            originalImgElement.src = img.src;
+
+            // 抽出された代表色を表示
+            colorsDisplayElement.innerHTML = ''; // ディスプレイをクリア
+            palette.forEach(color => {
+                const colorDiv = document.createElement('div');
+                colorDiv.style.width = '50px';
+                colorDiv.style.height = '50px';
+                colorDiv.style.backgroundColor = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+                colorsDisplayElement.appendChild(colorDiv);
+            });
+        }
 
         // ボタンのクリックイベントリスナー
         extractBtn.addEventListener('click', async () => {
@@ -54,22 +85,11 @@
             try {
                 const img = await toImg(input);
 
-                // 元画像を表示
-                originalImgElement.src = img.src;
+                // 9つの代表色を抽出
+                const palette = makePalette(img, 9);
 
-                // ColorThiefを使って9つの代表色を抽出
-                const colorThief = new ColorThief();
-                const palette = colorThief.getPalette(img, 9);
-
-                // 抽出された代表色を表示
-                colorsDisplayElement.innerHTML = ''; // ディスプレイをクリア
-                palette.forEach(color => {
-                    const colorDiv = document.createElement('div');
-                    colorDiv.style.width = '50px';
-                    colorDiv.style.height = '50px';
-                    colorDiv.style.backgroundColor = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-                    colorsDisplayElement.appendChild(colorDiv);
-                });
+                // 元画像と代表色を表示
+                showDisp(img, palette);
             } catch (error) {
                 console.error('エラー:', error);
                 alert('抽出に失敗しました: ' + error.message);
