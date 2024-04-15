@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>toImg Demo</title>
+</head>
+
+<body>
+    <h1>toImg デモサイト</h1>
+
+    <!-- 入力フォーム -->
+    <label for="input">入力:</label>
+    <input type="text" id="input" placeholder="URL、DataURL、ファイル、キャンバスなど">
+    <input type="file" id="file-input" accept="image/*">
+
+    <button id="convert-btn">変換</button>
+
+    <!-- 結果表示エリア -->
+    <h2>結果</h2>
+    <img id="result-img" alt="変換された画像">
+
+    <!-- スクリプトの読み込み -->
+    <script src="./toImg.js"></script> <!-- toImg.jsのパスを指定 -->
+
+    <!-- デモサイトのスクリプト -->
+    <script>
+        // HTML要素を取得
+        const inputElement = document.getElementById('input');
+        const fileInputElement = document.getElementById('file-input');
+        const convertBtn = document.getElementById('convert-btn');
+        const resultImgElement = document.getElementById('result-img');
+
+        // ボタンのクリックイベントリスナー
+        convertBtn.addEventListener('click', async () => {
+            // ユーザー入力の取得
+            const textInput = inputElement.value;
+            const fileInput = fileInputElement.files[0];
+
+            let input;
+
+            // ファイルが選択されていればそれを使用し、それ以外はテキスト入力を使用
+            if (fileInput) {
+                input = fileInput;
+            } else {
+                input = textInput;
+            }
+
+            // toImg関数を使用して画像オブジェクトを取得
+            try {
+                const img = await toImg(input);
+                // 変換された画像を表示
+                resultImgElement.src = img.src;
+            } catch (error) {
+                console.error('エラー:', error);
+                alert('変換に失敗しました: ' + error.message);
+            }
+        });
+    </script>
+</body>
+
+</html>
