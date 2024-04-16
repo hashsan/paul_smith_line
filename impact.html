@@ -1,0 +1,132 @@
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
+  <script>
+// まず、chroma.jsライブラリを読み込みます。
+//const chroma = require('chroma-js');
+
+// 平均色と特徴的な色を検出するための関数
+function processImage(image) {
+    // 画像をキャンバスに描画してリサイズします。
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const aspectRatio = image.naturalWidth / image.naturalHeight;
+    canvas.width = 256;
+    canvas.height = canvas.width / aspectRatio;
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    // 3x3の範囲に分割
+    const cellWidth = Math.floor(canvas.width / 3);
+    const cellHeight = Math.floor(canvas.height / 3);
+    
+    // 各範囲の平均色と特徴的な色
+    const averageColors = [];
+    const topColors = [];
+    
+    for (let y = 0; y < 3; y++) {
+        for (let x = 0; x < 3; x++) {
+            const cellColors = [];
+            let rSum = 0, gSum = 0, bSum = 0, count = 0;
+            
+            // 各範囲内のピクセルを処理
+            for (let j = 0; j < cellHeight; j++) {
+                for (let i = 0; i < cellWidth; i++) {
+                    const index = ((y * cellHeight + j) * canvas.width + (x * cellWidth + i)) * 4;
+                    const r = imageData.data[index];
+                    const g = imageData.data[index + 1];
+                    const b = imageData.data[index + 2];
+                    
+                    // RGBの値を集計
+                    rSum += r;
+                    gSum += g;
+                    bSum += b;
+                    count++;
+                    
+                    // chroma.jsで色を作成
+                    const color = chroma(r, g, b);
+                    cellColors.push(color);
+                }
+            }
+            
+            // 平均色を計算
+            const avgR = rSum / count;
+            const avgG = gSum / count;
+            const avgB = bSum / count;
+            const averageColor = chroma(avgR, avgG, avgB);
+            
+            // 平均色を保持
+            averageColors.push(averageColor.hex());
+            
+            // 各範囲の特徴的な色を選定
+            const distances = cellColors.map(color => {
+                const distance = chroma.deltaE(averageColor, color);
+                return { color, distance };
+            });
+            
+            // 色差の大きい順にソート
+            distances.sort((a, b) => b.distance - a.distance);
+            
+            // 上位3つの色を選定
+            const top3Colors = distances.slice(0, 3);
+            topColors.push(top3Colors.map(item => item.color.hex()));
+        }
+    }
+    
+    return { averageColors, topColors };
+}
+
+// 関数の使用例
+const imgElement = document.getElementById('image');
+imgElement.onload = function() {
+    const { averageColors, topColors } = processImage(imgElement);
+    
+    // 平均色の9つの3x3の画像を作成
+    const averageCanvas = document.createElement('canvas');
+    averageCanvas.width = 3 * cellWidth;
+    averageCanvas.height = 3 * cellHeight;
+    const averageCtx = averageCanvas.getContext('2d');
+    
+    for (let y = 0; y < 3; y++) {
+        for (let x = 0; x < 3; x++) {
+            const color = averageColors[y * 3 + x];
+            averageCtx.fillStyle = color;
+            averageCtx.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight);
+        }
+    }
+    
+    // 上位の9つの3x3の画像を作成
+    const topCanvas = document.createElement('canvas');
+    topCanvas.width = 3 * cellWidth;
+    topCanvas.height = 3 * cellHeight;
+    const topCtx = topCanvas.getContext('2d');
+    
+    for (let y = 0; y < 3; y++) {
+        for (let x = 0; x < 3; x++) {
+            // 各セルの上位3つの色を組み合わせて1つの色を作成
+            const colorList = topColors[y * 3 + x];
+            const mixedColor = chroma.blend(colorList[0], colorList[1], 'screen').blend(colorList[2], 'screen');
+            
+            topCtx.fillStyle = mixedColor.hex();
+            topCtx.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight);
+        }
+    }
+    
+    // 横につなげた画像を作成
+    const combinedCanvas = document.createElement('canvas');
+    combinedCanvas.width = averageCanvas.width + topCanvas.width;
+    combinedCanvas.height = averageCanvas.height;
+    const combinedCtx = combinedCanvas.getContext('2d');
+    
+    combinedCtx.drawImage(averageCanvas, 0, 0);
+    combinedCtx.drawImage(topCanvas, averageCanvas.width, 0);
+    
+    // 結果を表示
+    document.body.appendChild(combinedCanvas);
+};
+
+// imgElementのsrcに画像のURLを設定して読み込みを開始します。
+imgElement.src = 'test.jpg';
+
+  </script>
+</body>
+          
