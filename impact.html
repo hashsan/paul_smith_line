@@ -104,9 +104,10 @@ imgElement.onload = function() {
     
     for (let y = 0; y < 3; y++) {
         for (let x = 0; x < 3; x++) {
-            // 各セルの上位3つの色を組み合わせて1つの色を作成
             const colorList = topColors[y * 3 + x];
-            const mixedColor = chroma.blend(colorList[0], colorList[1], 'screen').blend(colorList[2], 'screen');
+            const mixedColor = colorList[0];
+            // 各セルの上位3つの色を組み合わせて1つの色を作成 - do not          
+            //chroma.blend(colorList[0], colorList[1], 'screen').blend(colorList[2], 'screen');
             
             topCtx.fillStyle = mixedColor.hex();
             topCtx.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight);
