@@ -48,3 +48,6 @@ async function toImg(input) {
         }
     });
 }
+
+if(window) window.toImg=toImg; //////////////////
+
