@@ -80,7 +80,8 @@ function processImage(image) {
 const imgElement = document.getElementById('image');
 imgElement.onload = function() {
     const { averageColors, topColors } = processImage(imgElement);
-    
+    const cellWidth = 64;
+    const cellHeight = 64;
     // 平均色の9つの3x3の画像を作成
     const averageCanvas = document.createElement('canvas');
     averageCanvas.width = 3 * cellWidth;
