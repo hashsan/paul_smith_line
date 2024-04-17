@@ -18,6 +18,7 @@ function isCanvas(input) {
     return input instanceof HTMLCanvasElement;
 }
 
+/*
 async function toImg(input) {
     var img = new Image();
     img.crossOrigin = 'anonymous';  // CORS問題を回避するために必要
@@ -51,7 +52,8 @@ async function toImg(input) {
 
 if(window) window.toImg=toImg; //////////////////
 
-
+//old
+*/
 /////////////////////////////////////////////////
 
 function parseWH(sizeStr) {
