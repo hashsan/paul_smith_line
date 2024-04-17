@@ -167,9 +167,36 @@ async function toImg(input, sizeStr = null) {
     });
 }
 
+/////////////////////////////////////////////////
+function combine(img1, img2) {
+    // キャンバス要素を作成
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
 
-if(window) window.toImg=toImg; //////////////////
+    // 画像2の高さを画像1の高さに合わせる
+    var scaleFactor = img1.height / img2.height;
+    var newWidth = img2.width * scaleFactor;
+
+    // キャンバスのサイズを設定
+    canvas.width = img1.width + newWidth;
+    canvas.height = img1.height;
+
+    // 画像1をキャンバスに描画
+    ctx.drawImage(img1, 0, 0);
+
+    // 画像2をキャンバスに描画
+    ctx.drawImage(img2, img1.width, 0, newWidth, img1.height);
+
+    // キャンバス要素を返す
+    return canvas;
+}
 
 
+if(window){
+    window.toImg=toImg;
+    window.combine=combine;
+}
+
+/////////////////////////////////////////////////
 
 
