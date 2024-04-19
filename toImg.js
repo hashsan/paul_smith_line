@@ -190,11 +190,96 @@ function combine(img1, img2) {
     // キャンバス要素を返す
     return canvas;
 }
+/////////////////////////////////////////////////
+// キャンバスを描画する関数
+function drawPlettes(colorOrPalettes, canvasWidth, canvasHeight, n = null) {
+    // キャンバス要素を作成
+    const canvas = document.createElement('canvas');
+    canvas.width = canvasWidth; // キャンバスの幅
+    canvas.height = canvasHeight; // キャンバスの高さ
+    
+    // キャンバスの描画コンテキストを取得
+    const ctx = canvas.getContext('2d');
+    
+    // 与えられた色が1色のみの場合、配列に変換してグリッドサイズを1に設定
+    if (typeof colorOrPalettes === 'string') {
+        colorOrPalettes = [colorOrPalettes];
+        n = 1;
+    }
+    
+    // セルのサイズを計算
+    const cellWidth = canvasWidth / n;
+    const cellHeight = canvasHeight / n;
+    
+    // グリッドを描画
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+            // カラーコードを取得
+            const color = colorOrPalettes[i * n + j];
+            
+            // セルの位置
+            const x = j * cellWidth;
+            const y = i * cellHeight;
+            
+            // セルを指定された色で塗りつぶす
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, cellWidth, cellHeight);
+            
+            // 文字色を背景色に基づいて設定
+            const textColor = getTextColor(color);
+            
+            // セル内にカラーコードを表示
+            ctx.fillStyle = textColor;
+            ctx.font = '16px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(color, x + cellWidth / 2, y + cellHeight / 2);
+        }
+    }
+    
+    // 作成したキャンバス要素を返す
+    return canvas;
+}
 
+// 色の明るさに基づいて文字色を決定するヘルパー関数
+function getTextColor(color) {
+    // 16進数カラーコードをRGB値に変換
+    const r = parseInt(color.slice(1, 3), 16);
+    const g = parseInt(color.slice(3, 5), 16);
+    const b = parseInt(color.slice(5, 7), 16);
+    
+    // 色の明るさを計算
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    
+    // 明るさが128以上なら黒、128未満なら白を返す
+    return brightness >= 128 ? 'black' : 'white';
+}
+/*
+// 使用例
+const canvasWidth = 300; // キャンバスの幅
+const canvasHeight = 300; // キャンバスの高さ
 
+// 関数を呼び出して1つの色をキャンバス全体に描画し、結果を取得
+const resultCanvas = drawPlettes('#fafafa', 300, canvasHeight);
+
+// 上流で結果を使う
+document.body.appendChild(resultCanvas);
+
+// 複数の色を使って3x3のグリッドをキャンバスに描画し、結果を取得
+const palettes = [
+    '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#00FFFF', '#FF00FF', '#800000', '#008000', '#000080'
+];
+const gridCanvas = drawPlettes(palettes, canvasWidth, canvasHeight, 3);
+
+// 上流で結果を使う
+document.body.appendChild(gridCanvas);
+*/
+
+/////////////////////////////////////////////////
 if(window){
     window.toImg=toImg;
     window.combine=combine;
+    window.drawPlettes=drawPlettes;
 }
 
 /////////////////////////////////////////////////
